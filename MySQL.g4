@@ -1031,7 +1031,7 @@ time_functions:
 ;
 
 other_functions:
-	MAKE_SET 
+	  MAKE_SET
 	| LOAD_FILE
 	| IF 
 	| IFNULL
@@ -1074,11 +1074,22 @@ other_functions:
 ;
 
 group_functions:
-	AVG | COUNT | MAX_SYM | MIN_SYM | SUM
-	| BIT_AND | BIT_OR | BIT_XOR
+	  AVG
+	| COUNT
+	| MAX_SYM
+	| MIN_SYM
+	| SUM
+	| BIT_AND
+	| BIT_OR
+	| BIT_XOR
 	| GROUP_CONCAT
-	| STD | STDDEV | STDDEV_POP | STDDEV_SAMP
-	| VAR_POP | VAR_SAMP | VARIANCE
+	| STD
+	| STDDEV
+	| STDDEV_POP
+	| STDDEV_SAMP
+	| VAR_POP
+	| VAR_SAMP
+	| VARIANCE
 ;
 
 escape_id           : ID | '`' ID '`';
@@ -1137,7 +1148,6 @@ simple_expr:
 	| interval_expr
 ;
 
-
 function_call:
 	  (  functionList ( LPAREN (expression (COMMA expression)*)? RPAREN ) ?  )
 	| (  CAST_SYM LPAREN expression AS_SYM cast_data_type RPAREN  )
@@ -1183,6 +1193,7 @@ interval_expr:
 table_references:
         table_reference ( COMMA table_reference )*
 ;
+
 table_reference:
 	table_factor1 | table_atom
 ;
@@ -1308,9 +1319,13 @@ limit_clause:
 	LIMIT ((offset COMMA)? row_count) | (row_count OFFSET_SYM offset)
 ;
 
-offset:		INTEGER_NUM ;
+offset:
+	INTEGER_NUM
+;
 
-row_count:	INTEGER_NUM ;
+row_count:
+	INTEGER_NUM
+;
 
 select_list:
 	( ( displayed_column ( COMMA displayed_column )*)
@@ -1330,11 +1345,9 @@ table_spec:
 ;
 
 displayed_column :
-	( table_spec DOT ASTERISK )
-	|
-	( column_spec (alias)? )
-	| 
-	( bit_expr (alias)? )
+	  ( table_spec DOT ASTERISK )
+	| ( column_spec (alias)? )
+	| ( bit_expr (alias)? )
 ;
 
 delete_statements:
