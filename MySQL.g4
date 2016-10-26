@@ -1096,13 +1096,13 @@ schema_name			: escape_id;
 table_name			: escape_id;
 column_name			: escape_id;
 index_name			: escape_id;
-partition_name			: escape_id;
+partition_name		: escape_id;
 alias				: ( AS_SYM )? (escape_id);
 
 expression :
-      expression OR_SYM expression
+      expression AND_SYM expression
 	| expression XOR expression
-	| expression AND_SYM expression
+	| expression OR_SYM expression
 	| NOT_SYM expression
 	| bool_primary (IS_SYM (NOT_SYM)? (boolean_literal|NULL_SYM))?
 ;
@@ -1124,12 +1124,12 @@ predicate:
 ;
 
 bit_expr:
-	  bit_expr VERTBAR bit_expr
-	| bit_expr BITAND bit_expr
-	| bit_expr (SHIFT_LEFT|SHIFT_RIGHT) bit_expr
-	| bit_expr (PLUS|MINUS) bit_expr
+	  bit_expr (PLUS|MINUS) interval_expr
 	| bit_expr (ASTERISK|DIVIDE|MOD_SYM|POWER_OP) bit_expr
-	| bit_expr (PLUS|MINUS) interval_expr
+	| bit_expr (PLUS|MINUS) bit_expr
+	| bit_expr (SHIFT_LEFT|SHIFT_RIGHT) bit_expr
+	| bit_expr BITAND bit_expr
+	| bit_expr VERTBAR bit_expr
 	| (PLUS | MINUS | NEGATION | BINARY) simple_expr
 	| simple_expr
 ;
