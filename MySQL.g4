@@ -3,7 +3,6 @@ grammar MySQL;
 options 
 {
 	language=Java;
-	output=AST;
 	backtrack=true;
 }
 
@@ -1100,17 +1099,21 @@ index_name			: escape_id;
 partition_name			: escape_id;
 alias				: ( AS_SYM )? (escape_id);
 
-expression:	exp_factor1 ( OR_SYM exp_factor1 )* ;
-exp_factor1:	exp_factor2 ( XOR exp_factor2 )* ;
-exp_factor2:	exp_factor3 ( AND_SYM exp_factor3 )* ;
-exp_factor3:	(NOT_SYM)? exp_factor4 ;
-exp_factor4:	bool_primary ( IS_SYM (NOT_SYM)? (boolean_literal|NULL_SYM) )? ;
+expression :
+      expression OR_SYM expression
+	| expression XOR expression
+	| expression AND_SYM expression
+	| NOT_SYM expression
+	| bool_primary (IS_SYM (NOT_SYM)? (boolean_literal|NULL_SYM))?
+;
+
 bool_primary:
 	  ( predicate relational_op predicate ) 
 	| ( predicate relational_op ( ALL | ANY )? subquery )
 	| ( NOT_SYM? EXISTS subquery )
 	| predicate 
 ;
+
 predicate:
 	  ( bit_expr (NOT_SYM)? IN_SYM (subquery | expression_list) )
 	| ( bit_expr (NOT_SYM)? BETWEEN bit_expr AND_SYM predicate ) 
@@ -1119,21 +1122,18 @@ predicate:
 	| ( bit_expr (NOT_SYM)? REGEXP bit_expr ) 
 	| ( bit_expr )  
 ;
+
 bit_expr:
-	factor1 ( VERTBAR factor1 )? ;
-factor1:
-	factor2 ( BITAND factor2 )? ;
-factor2:
-	factor3 ( (SHIFT_LEFT|SHIFT_RIGHT) factor3 )? ;
-factor3:
-	factor4 ( (PLUS|MINUS) factor4 )? ;
-factor4:
-	factor5 ( (ASTERISK|DIVIDE|MOD_SYM|POWER_OP) factor5 )? ;
-factor5:
-	factor6 ( (PLUS|MINUS) interval_expr )? ;
-factor6:
-	(PLUS | MINUS | NEGATION | BINARY) simple_expr
-	| simple_expr ;
+	  bit_expr VERTBAR bit_expr
+	| bit_expr BITAND bit_expr
+	| bit_expr (SHIFT_LEFT|SHIFT_RIGHT) bit_expr
+	| bit_expr (PLUS|MINUS) bit_expr
+	| bit_expr (ASTERISK|DIVIDE|MOD_SYM|POWER_OP) bit_expr
+	| bit_expr (PLUS|MINUS) interval_expr
+	| (PLUS | MINUS | NEGATION | BINARY) simple_expr
+	| simple_expr
+;
+
 simple_expr:
 	literal_value 
 	| column_spec
@@ -1197,23 +1197,18 @@ table_references:
 table_reference:
 	table_factor1 | table_atom
 ;
-
 table_factor1:
 	table_factor2 (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )?
 ;
-
 table_factor2:
 	table_factor3 (  STRAIGHT_JOIN table_atom (ON expression)?  )?
 ;
-
 table_factor3:
 	table_factor4 (  (LEFT|RIGHT) (OUTER)? JOIN_SYM table_factor4 join_condition  )?
 ;
-
 table_factor4:
 	table_atom (  NATURAL ( (LEFT|RIGHT) (OUTER)? )? JOIN_SYM table_atom )?
 ;
-
 table_atom:
 	  ( table_spec
 	  (partition_clause)?
