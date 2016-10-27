@@ -1191,37 +1191,30 @@ interval_expr:
 ;
 
 table_references:
-        table_reference ( COMMA table_reference )*
+	escaped_table_reference  ( COMMA escaped_table_reference)*
+;
+
+escaped_table_reference:
+	  table_reference
+	| OJ_SYM table_reference
 ;
 
 table_reference:
-	table_factor1 | table_atom
+	  table_factor
+	| table_reference (INNER_SYM | CROSS)? JOIN_SYM table_factor ((ON expression) | (USING_SYM (column_list)))?
+    | table_reference STRAIGHT_JOIN table_factor (ON expression)?
+    | table_reference (LEFT|RIGHT) OUTER? JOIN_SYM table_reference ((ON expression) | (USING_SYM (column_list)))
+    | table_reference NATURAL ((LEFT|RIGHT) OUTER?)? JOIN_SYM table_factor
 ;
-table_factor1:
-	table_factor2 (  (INNER_SYM | CROSS)? JOIN_SYM table_atom (join_condition)?  )?
-;
-table_factor2:
-	table_factor3 (  STRAIGHT_JOIN table_atom (ON expression)?  )?
-;
-table_factor3:
-	table_factor4 (  (LEFT|RIGHT) (OUTER)? JOIN_SYM table_factor4 join_condition  )?
-;
-table_factor4:
-	table_atom (  NATURAL ( (LEFT|RIGHT) (OUTER)? )? JOIN_SYM table_atom )?
-;
-table_atom:
+
+table_factor:
 	  ( table_spec
 	  (partition_clause)?
 	  (alias)?
 	  (index_hint_list)?
 	  )
-	| ( subquery alias )
-	| ( LPAREN table_references RPAREN )
-	| ( OJ_SYM table_reference LEFT OUTER JOIN_SYM table_reference ON expression )
-;
-
-join_condition:
-	  (ON expression) | (USING_SYM column_list)
+    | ( subquery alias )
+    | ( LPAREN table_references RPAREN )
 ;
 
 index_hint_list:
